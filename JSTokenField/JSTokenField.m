@@ -300,7 +300,9 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 	
 	JSTokenButton *token = (JSTokenButton *)sender;
 	[token setToggled:YES];
-    [token becomeFirstResponder];
+    if (self.textField.enabled) {
+        [token becomeFirstResponder];
+    }
 }
 
 - (void)setFrame:(CGRect)frame
