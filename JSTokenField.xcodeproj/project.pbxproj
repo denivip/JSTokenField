@@ -28,6 +28,7 @@
 		B71650DC14439A0500EBF2C7 /* JSTokenField.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A1A06BA13FEE01C00CA6645 /* JSTokenField.m */; };
 		B71650DD14439A0500EBF2C7 /* JSTokenButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A1A06B713FEE01C00CA6645 /* JSTokenButton.h */; };
 		B71650DE14439A0500EBF2C7 /* JSTokenButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A1A06B813FEE01C00CA6645 /* JSTokenButton.m */; };
+		E69575B216BFB156005A7A93 /* DVTokenButton.m in Sources */ = {isa = PBXBuildFile; fileRef = E69575B116BFB156005A7A93 /* DVTokenButton.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +56,8 @@
 		1A1A06CD13FF000C00CA6645 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		1A1A06CE13FF000C00CA6645 /* AddressBookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBookUI.framework; path = System/Library/Frameworks/AddressBookUI.framework; sourceTree = SDKROOT; };
 		B71650D0144399F800EBF2C7 /* libJSTokenFieldLibrary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libJSTokenFieldLibrary.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E69575B016BFB156005A7A93 /* DVTokenButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DVTokenButton.h; sourceTree = "<group>"; };
+		E69575B116BFB156005A7A93 /* DVTokenButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DVTokenButton.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +117,8 @@
 		1A1A06A013FEDEEC00CA6645 /* JSTokenField */ = {
 			isa = PBXGroup;
 			children = (
+				E69575B016BFB156005A7A93 /* DVTokenButton.h */,
+				E69575B116BFB156005A7A93 /* DVTokenButton.m */,
 				1A1A06A913FEDEEC00CA6645 /* DemoAppDelegate.h */,
 				1A1A06AA13FEDEEC00CA6645 /* DemoAppDelegate.m */,
 				1A1A06AC13FEDEEC00CA6645 /* DemoViewController.h */,
@@ -245,6 +250,7 @@
 				1A1A06AE13FEDEEC00CA6645 /* DemoViewController.m in Sources */,
 				1A1A06BB13FEE01C00CA6645 /* JSTokenButton.m in Sources */,
 				1A1A06BC13FEE01C00CA6645 /* JSTokenField.m in Sources */,
+				E69575B216BFB156005A7A93 /* DVTokenButton.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
