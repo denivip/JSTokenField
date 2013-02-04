@@ -27,7 +27,7 @@
 //
 
 #import "JSTokenField.h"
-#import "JSTokenButton.h"
+#import "DVTokenButton.h"
 #import <QuartzCore/QuartzCore.h>
 
 NSString *const JSTokenFieldFrameDidChangeNotification = @"JSTokenFieldFrameDidChangeNotification";
@@ -44,7 +44,7 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 
 @interface JSTokenField ();
 
-- (JSTokenButton *)tokenWithString:(NSString *)string representedObject:(id)obj;
+- (DVTokenButton *)tokenWithString:(NSString *)string representedObject:(id)obj;
 - (void)deleteHighlightedToken;
 
 - (void)commonSetup;
@@ -117,6 +117,8 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
                                              selector:@selector(handleTextDidChange:)
                                                  name:UITextFieldTextDidChangeNotification
                                                object:_textField];
+    _normalBg = [[[UIImage imageNamed:@"tokenNormal"] stretchableImageWithLeftCapWidth:10 topCapHeight:0] retain];
+    _removeIcon = nil;
 }
 
 - (void)dealloc
@@ -138,7 +140,7 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
     
 	if ([aString length])
 	{
-		JSTokenButton *token = [self tokenWithString:aString representedObject:obj];
+		DVTokenButton *token = [self tokenWithString:aString representedObject:obj];
         token.parentField = self;
 		[_tokens addObject:token];
 		
@@ -151,9 +153,9 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 	}
 }
 
-- (void)removeTokenWithTest:(BOOL (^)(JSTokenButton *token))test {
-    JSTokenButton *tokenToRemove = nil;
-    for (JSTokenButton *token in [_tokens reverseObjectEnumerator]) {
+- (void)removeTokenWithTest:(BOOL (^)(DVTokenButton *token))test {
+    DVTokenButton *tokenToRemove = nil;
+    for (DVTokenButton *token in [_tokens reverseObjectEnumerator]) {
         if (test(token)) {
             tokenToRemove = token;
             break;
@@ -181,13 +183,13 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 
 - (void)removeTokenForString:(NSString *)string
 {
-    [self removeTokenWithTest:^BOOL(JSTokenButton *token) {
+    [self removeTokenWithTest:^BOOL(DVTokenButton *token) {
         return [[token titleForState:UIControlStateNormal] isEqualToString:string];
     }];
 }
 
 - (void)removeTokenWithRepresentedObject:(id)representedObject {
-    [self removeTokenWithTest:^BOOL(JSTokenButton *token) {
+    [self removeTokenWithTest:^BOOL(DVTokenButton *token) {
         return [[token representedObject] isEqual:representedObject];
     }];
 }
@@ -213,10 +215,11 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 	}
 }
 
-- (JSTokenButton *)tokenWithString:(NSString *)string representedObject:(id)obj
+- (DVTokenButton *)tokenWithString:(NSString *)string representedObject:(id)obj
 {
-	JSTokenButton *token = [JSTokenButton tokenWithString:string representedObject:obj];
-	CGRect frame = [token frame];
+	DVTokenButton *token = [DVTokenButton tokenWithString:string representedObject:obj withNormalBg:self.normalBg removeIcon:self.removeIcon];
+	
+    CGRect frame = [token frame];
 	
 	if (frame.size.width > self.frame.size.width)
 	{
@@ -293,12 +296,12 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 
 - (void)toggle:(id)sender
 {
-	for (JSTokenButton *token in _tokens)
+	for (DVTokenButton *token in _tokens)
 	{
 		[token setToggled:NO];
 	}
 	
-	JSTokenButton *token = (JSTokenButton *)sender;
+	DVTokenButton *token = (DVTokenButton *)sender;
 	[token setToggled:YES];
     if (self.textField.enabled) {
         [token becomeFirstResponder];
@@ -343,7 +346,7 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
     if ([string isEqualToString:@""] &&
         (NSEqualRanges(range, NSMakeRange(0, 0)) || [[[textField text] substringWithRange:range] isEqualToString:ZERO_WIDTH_SPACE_STRING]))
 	{
-        JSTokenButton *token = [_tokens lastObject];
+        DVTokenButton *token = [_tokens lastObject];
         [token becomeFirstResponder];		
 		return NO;
 	}

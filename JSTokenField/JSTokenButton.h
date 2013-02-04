@@ -44,11 +44,12 @@
 
 @property (nonatomic, retain) UIImage *normalBg;
 @property (nonatomic, retain) UIImage *highlightedBg;
+@property (nonatomic, retain) UIButton *removeButton;
 
 @property (nonatomic, retain) id representedObject;
 
 @property (nonatomic, assign) JSTokenField *parentField;
 
 + (JSTokenButton *)tokenWithString:(NSString *)string representedObject:(id)obj;
-
++ (JSTokenButton *)tokenWithString:(NSString *)string representedObject:(id)obj withNormalBg:(UIImage*)normalBg highlightedBg:(UIImage*)highlightedBg;
 @end
