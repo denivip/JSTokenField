@@ -271,7 +271,7 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 	
 	textFieldFrame.origin = currentRect.origin;
 	
-	if ((self.frame.size.width - textFieldFrame.origin.x) >= 60)
+	if ((self.frame.size.width - textFieldFrame.origin.x) >= 46)
 	{
 		textFieldFrame.size.width = self.frame.size.width - textFieldFrame.origin.x;
 	}
@@ -279,10 +279,10 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 	{
 		textFieldFrame.size.width = self.frame.size.width;
         textFieldFrame.origin = CGPointMake(WIDTH_PADDING * 2, 
-                                            (currentRect.origin.y + currentRect.size.height + HEIGHT_PADDING));
+                                            (currentRect.origin.y + HEIGHT_PADDING));
 	}
 	
-	textFieldFrame.origin.y += HEIGHT_PADDING;
+	//textFieldFrame.origin.y += HEIGHT_PADDING;
 	[_textField setFrame:textFieldFrame];
 	CGRect selfFrame = [self frame];
 	selfFrame.size.height = textFieldFrame.origin.y + textFieldFrame.size.height + HEIGHT_PADDING;
@@ -298,7 +298,7 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 {
 	for (DVTokenButton *token in _tokens)
 	{
-		[token setToggled:NO];
+		[token setToggled:YES];
 	}
 	
 	DVTokenButton *token = (DVTokenButton *)sender;

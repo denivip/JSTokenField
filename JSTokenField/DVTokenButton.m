@@ -9,6 +9,8 @@
 #import "DVTokenButton.h"
 #import <QuartzCore/QuartzCore.h>
 #import "JSTokenField.h"
+#import "DVTogetherAppearance.h"
+
 
 @interface DVTokenButton ()
 
@@ -22,17 +24,17 @@
 {
 	DVTokenButton *button = (DVTokenButton *)[self buttonWithType:UIButtonTypeCustom];
 	[button setAdjustsImageWhenHighlighted:NO];
-	[button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+	[button setTitleColor:[DVTogetherAppearance textColorSubtitle] forState:UIControlStateNormal];
 	[[button titleLabel] setFont:[UIFont fontWithName:@"Helvetica Neue" size:12]];
 	[[button titleLabel] setLineBreakMode:UILineBreakModeTailTruncation];
-	[button setTitleEdgeInsets:UIEdgeInsetsMake(5, 5, 5, 5)];
+	[button setTitleEdgeInsets:UIEdgeInsetsMake(5, 5, 5, 20)];
 	[button setBackgroundImage:normalBg forState:UIControlStateNormal];
     
 	[button setTitle:string forState:UIControlStateNormal];
 	
 	[button sizeToFit];
 	CGRect frame = [button frame];
-	frame.size.width += 34;
+	frame.size.width += 25;
 	frame.size.height = 22;
 	[button setFrame:frame];
 	
@@ -41,9 +43,8 @@
     [removeButton setFrame:CGRectMake(frame.size.width - frame.size.height, 0,  frame.size.height,  frame.size.height)];
     [removeButton addTarget:button action:@selector(removeTag:) forControlEvents:UIControlEventTouchUpInside];
     button.removeButton = removeButton;
-    [removeButton setHidden:YES];
     [button addSubview:removeButton];
-	[button setToggled:NO];
+	[button setToggled:YES];
 	
 	[button setRepresentedObject:obj];
 	
