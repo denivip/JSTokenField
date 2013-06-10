@@ -127,10 +127,23 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 	[_textField release], _textField = nil;
 	[_label release], _label = nil;
 	[_tokens release], _tokens = nil;
+    [_normalBg release], _normalBg = nil;
+    [_removeIcon release], _removeIcon = nil;
 	
 	[super dealloc];
 }
 
+- (void)setNormalBg:(UIImage *)normalBg
+{
+    [_normalBg release], _normalBg = nil;
+    _normalBg = [normalBg retain];
+}
+
+- (void)setRemoveIcon:(UIImage *)removeIcon
+{
+    [_removeIcon release], _removeIcon = nil;
+    _removeIcon = [removeIcon retain];
+}
 
 - (void)addTokenWithTitle:(NSString *)string representedObject:(id)obj
 {
