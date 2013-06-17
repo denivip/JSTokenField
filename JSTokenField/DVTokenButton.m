@@ -25,7 +25,7 @@
 	DVTokenButton *button = (DVTokenButton *)[self buttonWithType:UIButtonTypeCustom];
 	[button setAdjustsImageWhenHighlighted:NO];
 	[button setTitleColor:[DVTogetherAppearance textColorSubtitle] forState:UIControlStateNormal];
-	[[button titleLabel] setFont:[UIFont fontWithName:@"Helvetica Neue" size:12]];
+	[[button titleLabel] setFont:[UIFont systemFontOfSize:12]];
 	[[button titleLabel] setLineBreakMode:NSLineBreakByTruncatingTail];
 	[button setTitleEdgeInsets:UIEdgeInsetsMake(5, 5, 5, 20)];
 	[button setBackgroundImage:normalBg forState:UIControlStateNormal];
