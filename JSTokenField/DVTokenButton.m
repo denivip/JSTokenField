@@ -57,11 +57,11 @@
     CGRect titleLabelFrame = self.titleLabel.frame;
     CGRect removeButtonFrame = self.removeButton.frame;
     
+    removeButtonFrame.origin.x = CGRectGetMaxX(self.bounds) - removeButtonFrame.size.width;
+    self.removeButton.frame = removeButtonFrame;
+    
     titleLabelFrame.size.width = self.bounds.size.width - self.bounds.size.height - 3.f;
     self.titleLabel.frame = titleLabelFrame;
-    
-    removeButtonFrame.origin.x = CGRectGetMaxX(titleLabelFrame);
-    self.removeButton.frame = removeButtonFrame;
 }
 
 - (void)setToggled:(BOOL)toggled
