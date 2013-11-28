@@ -28,6 +28,7 @@
 
 #import "JSTokenField.h"
 #import "DVTokenButton.h"
+#import "JSBackspaceReportingTextField.h"
 #import <QuartzCore/QuartzCore.h>
 
 NSString *const JSTokenFieldFrameDidChangeNotification = @"JSTokenFieldFrameDidChangeNotification";
@@ -39,8 +40,6 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 #define WIDTH_PADDING 3
 
 #define DEFAULT_HEIGHT 31
-
-#define ZERO_WIDTH_SPACE_STRING @"\u200B"
 
 @interface JSTokenField ();
 
@@ -99,7 +98,7 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
     
     frame.origin.y += HEIGHT_PADDING;
     frame.size.height -= HEIGHT_PADDING * 2;
-    _textField = [[UITextField alloc] initWithFrame:frame];
+    _textField = [[JSBackspaceReportingTextField alloc] initWithFrame:frame];
     [_textField setDelegate:self];
     [_textField setBorderStyle:UITextBorderStyleNone];
     [_textField setBackground:nil];
@@ -109,21 +108,15 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
     //		[_textField.layer setBorderColor:[[UIColor redColor] CGColor]];
     //		[_textField.layer setBorderWidth:1.0];
     
-    [_textField setText:ZERO_WIDTH_SPACE_STRING];
-    
     [self addSubview:_textField];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleTextDidChange:)
-                                                 name:UITextFieldTextDidChangeNotification
-                                               object:_textField];
+    [self.textField addTarget:self action:@selector(textFieldWasUpdated:) forControlEvents:UIControlEventEditingChanged];
     _normalBg = [[[UIImage imageNamed:@"tokenNormal"] stretchableImageWithLeftCapWidth:10 topCapHeight:0] retain];
     _removeIcon = nil;
 }
 
 - (void)dealloc
 {
-	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[_textField release], _textField = nil;
 	[_label release], _label = nil;
 	[_tokens release], _tokens = nil;
@@ -148,8 +141,6 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 - (void)addTokenWithTitle:(NSString *)string representedObject:(id)obj
 {
 	NSString *aString = [string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-	
-    [_textField setText:ZERO_WIDTH_SPACE_STRING];
     
 	if ([aString length])
 	{
@@ -188,7 +179,7 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 				NSString *tokenName = [tokenToRemove titleForState:UIControlStateNormal];
 				[self.delegate tokenField:self didRemoveToken:tokenName representedObject:tokenToRemove.representedObject];
 
-        }
+		}
 	}
 	
 	[self setNeedsLayout];
@@ -207,6 +198,16 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
     }];
 }
 
+- (void)removeAllTokens {
+	NSArray *tokensCopy = [_tokens copy];
+	for (DVTokenButton *button in tokensCopy) {
+		[self removeTokenWithTest:^BOOL(DVTokenButton *token) {
+			return token == button;
+		}];
+	}
+	[tokensCopy release];
+}
+
 - (void)deleteHighlightedToken
 {
 	for (int i = 0; i < [_tokens count]; i++)
@@ -214,12 +215,21 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 		_deletedToken = [[_tokens objectAtIndex:i] retain];
 		if ([_deletedToken isToggled])
 		{
+			NSString *tokenName = [_deletedToken titleForState:UIControlStateNormal];
+			if ([self.delegate respondsToSelector:@selector(tokenField:shouldRemoveToken:representedObject:)]) {
+				BOOL shouldRemove = [self.delegate tokenField:self
+											shouldRemoveToken:tokenName
+											representedObject:_deletedToken.representedObject];
+				if (shouldRemove == NO) {
+					return;
+				}
+			}
+			
 			[_deletedToken removeFromSuperview];
 			[_tokens removeObject:_deletedToken];
 			
-			if ([self.delegate respondsToSelector:@selector(tokenField:didRemove:representedObject:)])
+			if ([self.delegate respondsToSelector:@selector(tokenField:didRemoveToken:representedObject:)])
 			{
-				NSString *tokenName = [_deletedToken titleForState:UIControlStateNormal];
 				[self.delegate tokenField:self didRemoveToken:tokenName representedObject:_deletedToken.representedObject];
 			}
 			
@@ -253,16 +263,22 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 	CGRect currentRect = CGRectZero;
 	
 	[_label sizeToFit];
-	[_label setFrame:CGRectMake(WIDTH_PADDING, HEIGHT_PADDING, [_label frame].size.width, [_label frame].size.height + 3)];
+	[_label setFrame:CGRectMake(WIDTH_PADDING, HEIGHT_PADDING, [_label frame].size.width, [_label frame].size.height + HEIGHT_PADDING)];
 	
-	currentRect.origin.x += _label.frame.size.width + _label.frame.origin.x + WIDTH_PADDING;
+	currentRect.origin.x = _label.frame.origin.x;
+	if (_label.frame.size.width > 0) {
+		currentRect.origin.x += _label.frame.size.width + WIDTH_PADDING;
+	}
 	
+	NSMutableArray *lastLineTokens = [NSMutableArray array];
+    
 	for (UIButton *token in _tokens)
 	{
 		CGRect frame = [token frame];
 		
 		if ((currentRect.origin.x + frame.size.width) > self.frame.size.width)
 		{
+			[lastLineTokens removeAllObjects];
 			currentRect.origin = CGPointMake(WIDTH_PADDING, (currentRect.origin.y + frame.size.height + HEIGHT_PADDING));
 		}
 		
@@ -275,6 +291,7 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 		{
 			[self addSubview:token];
 		}
+		[lastLineTokens addObject:token];
 		
 		currentRect.origin.x += frame.size.width + WIDTH_PADDING;
 		currentRect.size = frame.size;
@@ -290,6 +307,7 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 	}
 	else
 	{
+		[lastLineTokens removeAllObjects];
 		textFieldFrame.size.width = self.frame.size.width;
         textFieldFrame.origin = CGPointMake(WIDTH_PADDING * 2, 
                                             (currentRect.origin.y + HEIGHT_PADDING));
@@ -300,11 +318,24 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 	CGRect selfFrame = [self frame];
 	selfFrame.size.height = textFieldFrame.origin.y + textFieldFrame.size.height + HEIGHT_PADDING;
 	
-	[UIView animateWithDuration:0.3
-					 animations:^{
-						 [self setFrame:selfFrame];
-					 }
-					 completion:nil];
+	CGFloat textFieldMidY = CGRectGetMidY(textFieldFrame);
+	for (UIButton *token in lastLineTokens) {
+		// Center the last line's tokens vertically with the text field
+		CGPoint tokenCenter = token.center;
+		tokenCenter.y = textFieldMidY;
+		token.center = tokenCenter;
+	}
+	
+	if (self.layer.presentationLayer == nil) {
+		[self setFrame:selfFrame];
+	}
+	else {
+		[UIView animateWithDuration:0.3
+						 animations:^{
+							 [self setFrame:selfFrame];
+						 }
+						 completion:nil];
+	}
 }
 
 - (void)toggle:(id)sender
@@ -343,24 +374,28 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 #pragma mark -
 #pragma mark UITextFieldDelegate
 
-- (void)handleTextDidChange:(NSNotification *)note
-{
-	// ensure there's always a space at the beginning
-	NSMutableString *text = [[[_textField text] mutableCopy] autorelease];
-	if (![text hasPrefix:ZERO_WIDTH_SPACE_STRING])
-	{
-		[text insertString:ZERO_WIDTH_SPACE_STRING atIndex:0];
-		[_textField setText:text];
-	}
+
+- (void)textFieldWasUpdated:(UITextField *)sender {
+    if ([self.delegate respondsToSelector:@selector(tokenFieldTextDidChange:)]) {
+        [self.delegate tokenFieldTextDidChange:self];
+    }
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    if ([string isEqualToString:@""] &&
-        (NSEqualRanges(range, NSMakeRange(0, 0)) || [[[textField text] substringWithRange:range] isEqualToString:ZERO_WIDTH_SPACE_STRING]))
+    if ([string isEqualToString:@""] && NSEqualRanges(range, NSMakeRange(0, 0)))
 	{
         DVTokenButton *token = [_tokens lastObject];
-        [token becomeFirstResponder];		
+		if (!token) {
+			return NO;
+		}
+		
+		NSString *name = [token titleForState:UIControlStateNormal];
+		// If we don't allow deleting the token, don't even bother letting it highlight
+		BOOL responds = [self.delegate respondsToSelector:@selector(tokenField:shouldRemoveToken:representedObject:)];
+		if (responds == NO || [self.delegate tokenField:self shouldRemoveToken:name representedObject:token.representedObject]) {
+			[token becomeFirstResponder];
+		}
 		return NO;
 	}
 	
@@ -387,7 +422,7 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
     else if ([[textField text] length] > 1)
     {
         [self addTokenWithTitle:[textField text] representedObject:[textField text]];
-        [textField setText:ZERO_WIDTH_SPACE_STRING];
+        [textField setText:nil];
     }
 }
 
