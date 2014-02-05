@@ -9,8 +9,7 @@
 #import <UIKit/UIKit.h>
 @class JSTokenField;
 
-@interface DVTokenButton : UIButton <UIKeyInput> {
-}
+@interface DVTokenButton : UIButton
 
 @property (nonatomic, getter=isToggled) BOOL toggled;
 

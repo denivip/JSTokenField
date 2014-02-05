@@ -10,11 +10,11 @@
 #import <QuartzCore/QuartzCore.h>
 #import "JSTokenField.h"
 #import "DVTogetherAppearance.h"
+#import "UIImage+DVGColor.h"
 
+static CGFloat const kBackgroundHeight = 20.f;
 
-@interface DVTokenButton ()
-
-@property (nonatomic, strong) UIButton *removeButton;
+@interface DVTokenButton () <UIKeyInput>
 
 @end
 
@@ -22,52 +22,38 @@
 
 + (DVTokenButton *)tokenWithString:(NSString *)string representedObject:(id)obj withNormalBg:(UIImage*)normalBg removeIcon:(UIImage *)removeIcon
 {
+    srand([string length]);
+    CGFloat hue = (CGFloat)(rand() % 10) / 9.f;
+    // Исключаем слишком синие цвета 194°..294°, так как их плохо видно на фоне.
+    if (hue > 194.f/360.f && hue < 294.f/360.f) {
+        hue -= (294.f - 194.f) / 360.f;
+    }
+    UIColor *color = [UIColor colorWithHue:hue saturation:1.f brightness:1.f alpha:1.f];
+
 	DVTokenButton *button = (DVTokenButton *)[self buttonWithType:UIButtonTypeCustom];
 	[button setAdjustsImageWhenHighlighted:NO];
-	[button setTitleColor:[DVTogetherAppearance textColorSubtitle] forState:UIControlStateNormal];
-	[[button titleLabel] setFont:[UIFont systemFontOfSize:12]];
+	[button setTitleColor:color forState:UIControlStateNormal];
+	[[button titleLabel] setFont:[UIFont systemFontOfSize:11.f]];
 	[[button titleLabel] setLineBreakMode:NSLineBreakByTruncatingTail];
-	[button setTitleEdgeInsets:UIEdgeInsetsMake(5, 5, 5, 20)];
-	[button setBackgroundImage:normalBg forState:UIControlStateNormal];
-    
+    button.contentEdgeInsets = UIEdgeInsetsMake(0.f, 8.f, 0.f, 8.f);
+
+    UIImage *backgroundImage = [[[UIImage imageNamed:@"button_tag"] dvg_imageOverlayedWithColor:color] stretchableImageWithLeftCapWidth:12.f topCapHeight:0.f];
+	[button setBackgroundImage:backgroundImage forState:UIControlStateNormal];
 	[button setTitle:string forState:UIControlStateNormal];
-	
-	[button sizeToFit];
-	CGRect frame = [button frame];
-	frame.size.width += 25;
-	frame.size.height = 22;
-	[button setFrame:frame];
-	
-    UIButton *removeButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [removeButton setImage:removeIcon forState:UIControlStateNormal];
-    [removeButton setFrame:CGRectMake(frame.size.width - frame.size.height, 0,  frame.size.height,  frame.size.height)];
-    [removeButton addTarget:button action:@selector(removeTag:) forControlEvents:UIControlEventTouchUpInside];
-    button.removeButton = removeButton;
-    [button addSubview:removeButton];
+    [button addTarget:button action:@selector(removeTag:) forControlEvents:UIControlEventTouchUpInside];
 	[button setToggled:YES];
-	
 	[button setRepresentedObject:obj];
-	
+	[button sizeToFit];
+
 	return button;
 }
 
--(void)layoutSubviews {
-    [super layoutSubviews];
-    
-    CGRect titleLabelFrame = self.titleLabel.frame;
-    CGRect removeButtonFrame = self.removeButton.frame;
-    
-    removeButtonFrame.origin.x = CGRectGetMaxX(self.bounds) - removeButtonFrame.size.width;
-    self.removeButton.frame = removeButtonFrame;
-    
-    titleLabelFrame.size.width = self.bounds.size.width - self.bounds.size.height - 3.f;
-    self.titleLabel.frame = titleLabelFrame;
-}
-
-- (void)setToggled:(BOOL)toggled
+- (CGSize)sizeThatFits:(CGSize)size
 {
-	_toggled = toggled;
-	[self.removeButton setHidden:!toggled];
+    CGSize sizeThatFits = [super sizeThatFits:size];
+    size.height = kBackgroundHeight;
+
+    return sizeThatFits;
 }
 
 - (void)removeTag:(UIButton*)sender {
@@ -89,7 +75,7 @@
 
 
 - (BOOL)canBecomeFirstResponder {
-    return YES;
+    return NO;
 }
 
 @end

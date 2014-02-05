@@ -325,17 +325,25 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 		tokenCenter.y = textFieldMidY;
 		token.center = tokenCenter;
 	}
-	
-	if (self.layer.presentationLayer == nil) {
-		[self setFrame:selfFrame];
-	}
-	else {
-		[UIView animateWithDuration:0.3
-						 animations:^{
-							 [self setFrame:selfFrame];
-						 }
-						 completion:nil];
-	}
+}
+
+- (CGSize)sizeThatFits:(CGSize)size
+{
+    CGSize sizeThatFits = [super sizeThatFits:size];
+
+    [self layoutIfNeeded];
+
+    CGFloat maxX = 0;
+    CGFloat maxY = 0;
+    for (UIButton *token in _tokens) {
+        maxX = MAX(maxX, CGRectGetMaxX(token.frame));
+        maxY = MAX(maxY, CGRectGetMaxY(token.frame));
+    }
+
+    sizeThatFits.width = maxX;
+    sizeThatFits.height = maxY;
+
+    return sizeThatFits;
 }
 
 - (void)toggle:(id)sender
