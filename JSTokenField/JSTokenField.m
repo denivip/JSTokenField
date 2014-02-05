@@ -36,8 +36,8 @@ NSString *const JSTokenFieldNewFrameKey = @"JSTokenFieldNewFrameKey";
 NSString *const JSTokenFieldOldFrameKey = @"JSTokenFieldOldFrameKey";
 NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 
-#define HEIGHT_PADDING 3
-#define WIDTH_PADDING 3
+#define HEIGHT_PADDING 5.f
+#define WIDTH_PADDING 5.f
 
 #define DEFAULT_HEIGHT 31
 
@@ -241,19 +241,8 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 - (DVTokenButton *)tokenWithString:(NSString *)string representedObject:(id)obj
 {
 	DVTokenButton *token = [DVTokenButton tokenWithString:string representedObject:obj withNormalBg:self.normalBg removeIcon:self.removeIcon];
-	
-    CGRect frame = [token frame];
-	
-	if (frame.size.width > self.frame.size.width)
-	{
-		frame.size.width = self.frame.size.width - (WIDTH_PADDING * 2);
-	}
-	
-	[token setFrame:frame];
-	
-	[token addTarget:self
-			  action:@selector(toggle:)
-	forControlEvents:UIControlEventTouchUpInside];
+
+	[token addTarget:self action:@selector(toggle:) forControlEvents:UIControlEventTouchUpInside];
 	
 	return token;
 }
@@ -261,21 +250,21 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 - (void)layoutSubviews
 {
 	CGRect currentRect = CGRectZero;
-	
-	[_label sizeToFit];
-	[_label setFrame:CGRectMake(WIDTH_PADDING, HEIGHT_PADDING, [_label frame].size.width, [_label frame].size.height + HEIGHT_PADDING)];
-	
-	currentRect.origin.x = _label.frame.origin.x;
-	if (_label.frame.size.width > 0) {
-		currentRect.origin.x += _label.frame.size.width + WIDTH_PADDING;
-	}
-	
+    currentRect.origin.x += WIDTH_PADDING;
+
+    _label.hidden = YES;
+    _textField.hidden = YES;
+
 	NSMutableArray *lastLineTokens = [NSMutableArray array];
     
 	for (UIButton *token in _tokens)
 	{
 		CGRect frame = [token frame];
-		
+        frame.size.width = CGRectGetWidth(self.bounds) - WIDTH_PADDING * 2.f;
+        token.frame = frame;
+        [token sizeToFit];
+        frame = token.frame;
+
 		if ((currentRect.origin.x + frame.size.width) > self.frame.size.width)
 		{
 			[lastLineTokens removeAllObjects];
@@ -296,35 +285,6 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 		currentRect.origin.x += frame.size.width + WIDTH_PADDING;
 		currentRect.size = frame.size;
 	}
-	
-	CGRect textFieldFrame = [_textField frame];
-	
-	textFieldFrame.origin = currentRect.origin;
-	
-	if ((self.frame.size.width - textFieldFrame.origin.x) >= 46)
-	{
-		textFieldFrame.size.width = self.frame.size.width - textFieldFrame.origin.x;
-	}
-	else
-	{
-		[lastLineTokens removeAllObjects];
-		textFieldFrame.size.width = self.frame.size.width;
-        textFieldFrame.origin = CGPointMake(WIDTH_PADDING * 2, 
-                                            (currentRect.origin.y + HEIGHT_PADDING));
-	}
-	
-	//textFieldFrame.origin.y += HEIGHT_PADDING;
-	[_textField setFrame:textFieldFrame];
-	CGRect selfFrame = [self frame];
-	selfFrame.size.height = textFieldFrame.origin.y + textFieldFrame.size.height + HEIGHT_PADDING;
-	
-	CGFloat textFieldMidY = CGRectGetMidY(textFieldFrame);
-	for (UIButton *token in lastLineTokens) {
-		// Center the last line's tokens vertically with the text field
-		CGPoint tokenCenter = token.center;
-		tokenCenter.y = textFieldMidY;
-		token.center = tokenCenter;
-	}
 }
 
 - (CGSize)sizeThatFits:(CGSize)size
@@ -340,8 +300,8 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
         maxY = MAX(maxY, CGRectGetMaxY(token.frame));
     }
 
-    sizeThatFits.width = maxX;
-    sizeThatFits.height = maxY;
+    sizeThatFits.width = maxX + WIDTH_PADDING;
+    sizeThatFits.height = maxY + HEIGHT_PADDING;
 
     return sizeThatFits;
 }

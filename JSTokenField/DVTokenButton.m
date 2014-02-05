@@ -51,7 +51,8 @@ static CGFloat const kBackgroundHeight = 20.f;
 - (CGSize)sizeThatFits:(CGSize)size
 {
     CGSize sizeThatFits = [super sizeThatFits:size];
-    size.height = kBackgroundHeight;
+    sizeThatFits.width = MIN(size.width, sizeThatFits.width);
+    sizeThatFits.height = kBackgroundHeight;
 
     return sizeThatFits;
 }
