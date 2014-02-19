@@ -22,7 +22,7 @@ static CGFloat const kBackgroundHeight = 20.f;
 
 + (DVTokenButton *)tokenWithString:(NSString *)string representedObject:(id)obj withNormalBg:(UIImage*)normalBg removeIcon:(UIImage *)removeIcon
 {
-    srand([string length]);
+    srand((unsigned)[string length]);
     CGFloat hue = (CGFloat)(rand() % 10) / 9.f;
     // Исключаем слишком синие цвета 194°..294°, так как их плохо видно на фоне.
     if (hue > 194.f/360.f && hue < 294.f/360.f) {
