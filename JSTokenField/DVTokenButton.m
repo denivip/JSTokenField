@@ -10,6 +10,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "JSTokenField.h"
 #import "DVTogetherAppearance.h"
+#import "DVGTogetherAppearance.h"
 #import "UIImage+DVGColor.h"
 
 static CGFloat const kBackgroundHeight = 20.f;
@@ -22,30 +23,25 @@ static CGFloat const kBackgroundHeight = 20.f;
 
 + (DVTokenButton *)tokenWithString:(NSString *)string representedObject:(id)obj withNormalBg:(UIImage*)normalBg removeIcon:(UIImage *)removeIcon
 {
-    srand((unsigned)[string length]);
-    CGFloat hue = (CGFloat)(rand() % 10) / 9.f;
-    // Исключаем слишком синие цвета 194°..294°, так как их плохо видно на фоне.
-    if (hue > 194.f/360.f && hue < 294.f/360.f) {
-        hue -= (294.f - 194.f) / 360.f;
-    }
-    UIColor *color = [UIColor colorWithHue:hue saturation:1.f brightness:1.f alpha:1.f];
-
 	DVTokenButton *button = (DVTokenButton *)[self buttonWithType:UIButtonTypeCustom];
-	[button setAdjustsImageWhenHighlighted:NO];
-	[button setTitleColor:color forState:UIControlStateNormal];
-	[[button titleLabel] setFont:[UIFont systemFontOfSize:11.f]];
-	[[button titleLabel] setLineBreakMode:NSLineBreakByTruncatingTail];
-    button.contentEdgeInsets = UIEdgeInsetsMake(0.f, 8.f, 0.f, 8.f);
+    [button configureWithString:string representedObject:obj withNormalBg:normalBg removeIcon:removeIcon];
+    return button;
+}
 
-    UIImage *backgroundImage = [[[UIImage imageNamed:@"button_tag"] dvg_imageOverlayedWithColor:color] stretchableImageWithLeftCapWidth:12.f topCapHeight:0.f];
-	[button setBackgroundImage:backgroundImage forState:UIControlStateNormal];
-	[button setTitle:string forState:UIControlStateNormal];
-    [button addTarget:button action:@selector(removeTag:) forControlEvents:UIControlEventTouchUpInside];
-	[button setToggled:YES];
-	[button setRepresentedObject:obj];
-	[button sizeToFit];
+- (void)configureWithString:(NSString *)string representedObject:(id)obj withNormalBg:(UIImage *)normalBg removeIcon:(UIImage *)removeIcon
+{
+	[self setAdjustsImageWhenHighlighted:NO];
+	[[self titleLabel] setFont:[UIFont systemFontOfSize:11.f]];
+	[[self titleLabel] setLineBreakMode:NSLineBreakByTruncatingTail];
+    self.contentEdgeInsets = UIEdgeInsetsMake(0.f, 8.f, 0.f, 8.f);
 
-	return button;
+	[self setTitle:string forState:UIControlStateNormal];
+    [self addTarget:self action:@selector(removeTag:) forControlEvents:UIControlEventTouchUpInside];
+	[self setToggled:YES];
+	[self setRepresentedObject:obj];
+	[self sizeToFit];
+
+    self.color = [UIColor togetherWhiteColor];
 }
 
 - (CGSize)sizeThatFits:(CGSize)size
@@ -61,7 +57,16 @@ static CGFloat const kBackgroundHeight = 20.f;
     [self.parentField removeTokenForString:[self titleForState:UIControlStateNormal]];
 }
 
+- (void)setColor:(UIColor *)color
+{
+    _color = [color copy];
+	[self setTitleColor:_color forState:UIControlStateNormal];
+    UIImage *backgroundImage = [[[UIImage imageNamed:@"button_tag"] dvg_imageOverlayedWithColor:_color] stretchableImageWithLeftCapWidth:12.f topCapHeight:0.f];
+	[self setBackgroundImage:backgroundImage forState:UIControlStateNormal];
+}
+
 #pragma mark - UIKeyInput
+
 - (void)deleteBackward {
     [self.parentField removeTokenForString:[self titleForState:UIControlStateNormal]];
 }
@@ -73,7 +78,6 @@ static CGFloat const kBackgroundHeight = 20.f;
 - (void)insertText:(NSString *)text {
     return;
 }
-
 
 - (BOOL)canBecomeFirstResponder {
     return NO;

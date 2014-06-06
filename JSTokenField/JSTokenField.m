@@ -138,13 +138,14 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
     _removeIcon = [removeIcon retain];
 }
 
-- (void)addTokenWithTitle:(NSString *)string representedObject:(id)obj
+- (void)addTokenWithTitle:(NSString *)string representedObject:(id)obj color:(UIColor *)color
 {
 	NSString *aString = [string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     
 	if ([aString length])
 	{
 		DVTokenButton *token = [self tokenWithString:aString representedObject:obj];
+        token.color = color;
         token.parentField = self;
 		[_tokens addObject:token];
 		
@@ -155,6 +156,11 @@ NSString *const JSDeletedTokenKey = @"JSDeletedTokenKey";
 		
 		[self setNeedsLayout];
 	}
+}
+
+- (void)addTokenWithTitle:(NSString *)string representedObject:(id)obj
+{
+    [self addTokenWithTitle:string representedObject:obj color:[UIColor blackColor]];
 }
 
 - (void)removeTokenWithTest:(BOOL (^)(DVTokenButton *token))test {

@@ -58,6 +58,7 @@ extern NSString *const JSDeletedTokenKey;
 @property (nonatomic, retain) UIImage *removeIcon;
 
 - (void)addTokenWithTitle:(NSString *)string representedObject:(id)obj;
+- (void)addTokenWithTitle:(NSString *)string representedObject:(id)obj color:(UIColor *)color;
 - (void)removeTokenForString:(NSString *)string;
 - (void)removeTokenWithRepresentedObject:(id)representedObject;
 - (void)removeAllTokens;

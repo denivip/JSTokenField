@@ -12,10 +12,9 @@
 @interface DVTokenButton : UIButton
 
 @property (nonatomic, getter=isToggled) BOOL toggled;
-
 @property (nonatomic, retain) id representedObject;
-
 @property (nonatomic, weak) JSTokenField *parentField;
+@property (nonatomic, copy) UIColor *color;
 
 + (DVTokenButton *)tokenWithString:(NSString *)string representedObject:(id)obj withNormalBg:(UIImage*)normalBg removeIcon:(UIImage*)removeIcon;
 
