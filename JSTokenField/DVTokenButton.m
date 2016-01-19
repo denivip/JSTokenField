@@ -10,7 +10,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import "JSTokenField.h"
 #import "DVTogetherAppearance.h"
-#import "DVTogetherAppearance.h"
 #import "UIImage+DVGColor.h"
 
 static CGFloat const kBackgroundHeight = 20.f;
